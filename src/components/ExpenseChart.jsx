@@ -2,7 +2,22 @@ import React from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts'
 import { motion } from 'framer-motion'
 
-export default function ExpenseChart({ transactions }) {
+export default function ExpenseChart({ transactions, currency = '$' }) {
+    const currencyMap = {
+        '$': { code: 'USD', locale: 'en-US' },
+        '€': { code: 'EUR', locale: 'de-DE' },
+        '£': { code: 'GBP', locale: 'en-GB' },
+        '₹': { code: 'INR', locale: 'en-IN' }
+    }
+
+    const formatCurrency = (amount) => {
+        const config = currencyMap[currency] || currencyMap['$']
+        return new Intl.NumberFormat(config.locale, {
+            style: 'currency',
+            currency: config.code
+        }).format(amount)
+    }
+
     const categoryData = React.useMemo(() => {
         const expenses = transactions.filter(t => t.type === 'expense')
         const grouped = expenses.reduce((acc, curr) => {
@@ -53,6 +68,7 @@ export default function ExpenseChart({ transactions }) {
                             <Tooltip
                                 contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                 itemStyle={{ color: '#374151' }}
+                                formatter={(value) => formatCurrency(value)}
                             />
                             <Legend verticalAlign="bottom" height={36} iconType="circle" />
                         </PieChart>
@@ -71,10 +87,16 @@ export default function ExpenseChart({ transactions }) {
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={incomeVsExpense} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: '#6b7280', fontSize: 12 }}
+                                tickFormatter={(value) => formatCurrency(value)}
+                            />
                             <Tooltip
                                 cursor={{ fill: '#f3f4f6' }}
                                 contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                formatter={(value) => formatCurrency(value)}
                             />
                             <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={50}>
                                 {

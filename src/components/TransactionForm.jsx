@@ -83,15 +83,18 @@ export default function TransactionForm({ onAdd, onUpdate, editingTransaction, o
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Amount</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white text-gray-900"
-                            placeholder="0.00"
-                            value={formData.amount}
-                            onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                        />
+                        <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">{currency}</span>
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                className="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white text-gray-900"
+                                placeholder="0.00"
+                                value={formData.amount}
+                                onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                            />
+                        </div>
                     </div>
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Type</label>

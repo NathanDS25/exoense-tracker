@@ -1,4 +1,4 @@
-# Exoense Tracker
+# Expense Tracker
 
 A modern, minimalistic, and responsive Expense Tracker Web Application built with React.js and Tailwind CSS.
 

@@ -6,6 +6,21 @@ export default function SavingsGoals({ goals, onAdd, onUpdate, onDelete, currenc
     const [isAdding, setIsAdding] = useState(false)
     const [newGoal, setNewGoal] = useState({ name: '', target: '', currentAmount: '0' })
 
+    const currencyMap = {
+        '$': { code: 'USD', locale: 'en-US' },
+        '€': { code: 'EUR', locale: 'de-DE' },
+        '£': { code: 'GBP', locale: 'en-GB' },
+        '₹': { code: 'INR', locale: 'en-IN' }
+    }
+
+    const formatCurrency = (amount) => {
+        const config = currencyMap[currency] || currencyMap['$']
+        return new Intl.NumberFormat(config.locale, {
+            style: 'currency',
+            currency: config.code
+        }).format(amount)
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault()
         if (!newGoal.name || !newGoal.target) return
@@ -82,7 +97,7 @@ export default function SavingsGoals({ goals, onAdd, onUpdate, onDelete, currenc
                                 <span className="font-medium text-gray-700 dark:text-gray-300">{goal.name}</span>
                                 <div className="flex items-center gap-2">
                                     <span className="text-gray-500 dark:text-gray-400">
-                                        {currency}{goal.currentAmount} / {currency}{goal.target}
+                                        {formatCurrency(goal.currentAmount)} / {formatCurrency(goal.target)}
                                     </span>
                                     <button
                                         onClick={() => onDelete(goal.id)}

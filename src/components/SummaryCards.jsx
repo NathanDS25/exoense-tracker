@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { Wallet, TrendingUp, TrendingDown } from 'lucide-react'
 import { motion } from 'framer-motion'
 
-export default function SummaryCards({ transactions }) {
+export default function SummaryCards({ transactions, currency = '$' }) {
     const { balance, income, expense } = useMemo(() => {
         return transactions.reduce((acc, curr) => {
             const amount = Number(curr.amount)
@@ -17,8 +17,19 @@ export default function SummaryCards({ transactions }) {
         }, { balance: 0, income: 0, expense: 0 })
     }, [transactions])
 
+    const currencyMap = {
+        '$': { code: 'USD', locale: 'en-US' },
+        '€': { code: 'EUR', locale: 'de-DE' },
+        '£': { code: 'GBP', locale: 'en-GB' },
+        '₹': { code: 'INR', locale: 'en-IN' }
+    }
+
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+        const config = currencyMap[currency] || currencyMap['$']
+        return new Intl.NumberFormat(config.locale, {
+            style: 'currency',
+            currency: config.code
+        }).format(amount)
     }
 
     const cards = [

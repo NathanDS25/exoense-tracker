@@ -12,6 +12,22 @@ export default function SpendingBudgets({ transactions, budgets, setBudgets, cur
         return acc
     }, {})
 
+    const currencyMap = {
+        '$': { code: 'USD', locale: 'en-US' },
+        '€': { code: 'EUR', locale: 'de-DE' },
+        '£': { code: 'GBP', locale: 'en-GB' },
+        '₹': { code: 'INR', locale: 'en-IN' }
+    }
+
+    const formatCurrency = (amount) => {
+        const config = currencyMap[currency] || currencyMap['$']
+        return new Intl.NumberFormat(config.locale, {
+            style: 'currency',
+            currency: config.code,
+            maximumFractionDigits: 0
+        }).format(amount)
+    }
+
     const handleBudgetChange = (category, value) => {
         setBudgets(prev => ({
             ...prev,
@@ -45,7 +61,7 @@ export default function SpendingBudgets({ transactions, budgets, setBudgets, cur
                                     className="w-24 px-2 py-1 text-right text-gray-500 dark:text-gray-400 bg-transparent border-b border-gray-200 dark:border-gray-700 focus:outline-none focus:border-blue-500 transition-colors"
                                 />
                                 <span className={`text-xs font-semibold ${isOverBudget ? 'text-rose-500' : 'text-gray-400'}`}>
-                                    {currency}{spent.toFixed(0)} / {currency}{budget}
+                                    {formatCurrency(spent)} / {formatCurrency(budget)}
                                 </span>
                             </div>
 
@@ -54,7 +70,7 @@ export default function SpendingBudgets({ transactions, budgets, setBudgets, cur
                                     initial={{ width: 0 }}
                                     animate={{ width: `${Math.min(percentage, 100)}%` }}
                                     className={`h-full absolute left-0 top-0 transition-colors duration-300 ${percentage > 100 ? 'bg-rose-500' :
-                                            percentage > 80 ? 'bg-amber-400' : 'bg-emerald-500'
+                                        percentage > 80 ? 'bg-amber-400' : 'bg-emerald-500'
                                         }`}
                                 />
                             </div>

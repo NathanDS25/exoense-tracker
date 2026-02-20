@@ -29,6 +29,21 @@ export default function TransactionList({ transactions, onDelete, onEdit, search
     const visibleTransactions = transactions.slice(0, visibleCount)
     const hasMore = visibleTransactions.length < transactions.length
 
+    const currencyMap = {
+        '$': { code: 'USD', locale: 'en-US' },
+        '€': { code: 'EUR', locale: 'de-DE' },
+        '£': { code: 'GBP', locale: 'en-GB' },
+        '₹': { code: 'INR', locale: 'en-IN' }
+    }
+
+    const formatCurrency = (amount) => {
+        const config = currencyMap[currency] || currencyMap['$']
+        return new Intl.NumberFormat(config.locale, {
+            style: 'currency',
+            currency: config.code
+        }).format(amount)
+    }
+
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -104,7 +119,7 @@ export default function TransactionList({ transactions, onDelete, onEdit, search
                                         "font-bold text-lg",
                                         t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'
                                     )}>
-                                        {t.type === 'income' ? '+' : '-'}{currency}{Math.abs(t.amount).toFixed(2)}
+                                        {t.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(t.amount))}
                                     </span>
                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                                         <button

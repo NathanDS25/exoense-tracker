@@ -19,43 +19,45 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/goals', goalRoutes);
 
-// Database Connection
-let isConnected = false;
-let connectionError = null;
-
+// Database Connection — serverless-safe pattern
 const connectDB = async () => {
-  if (isConnected) return;
-  if (!process.env.MONGODB_URI) {
-    connectionError = "MONGODB_URI is not defined in Environment Variables";
-    console.error(connectionError);
+  // readyState: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
+  if (mongoose.connection.readyState === 1) return; // Already connected
+
+  if (mongoose.connection.readyState === 2) {
+    // Already connecting — wait for it to finish
+    await new Promise((resolve, reject) => {
+      mongoose.connection.once('connected', resolve);
+      mongoose.connection.once('error', reject);
+    });
     return;
   }
-  
-  try {
-    // serverSelectionTimeoutMS makes it fail fast if IP is not whitelisted
-    await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
-    isConnected = true;
-    connectionError = null;
-    console.log('Connected to MongoDB Atlas');
-  } catch (err) {
-    connectionError = err.message;
-    console.error('Failed to connect to MongoDB', err);
+
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI is not defined in Environment Variables');
   }
+
+  await mongoose.connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 20000,
+    connectTimeoutMS: 20000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 1, // Recommended for serverless — avoids connection exhaustion
+  });
 };
 
-// Connect before handling requests in serverless environments
+// Connect before handling requests
 app.use(async (req, res, next) => {
-  await connectDB();
-  if (!isConnected) {
-    return res.status(500).json({ 
-      error: 'Database connection failed', 
-      details: connectionError,
-      hint: !process.env.MONGODB_URI 
-        ? "Please add MONGODB_URI to Vercel Environment Variables." 
-        : "Check if your MongoDB Atlas Network Access allows Vercel (add 0.0.0.0/0)"
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('DB connection error:', err.message);
+    return res.status(500).json({
+      error: 'Database connection failed',
+      details: err.message,
+      hint: 'Check MONGODB_URI in Vercel Environment Variables and Atlas Network Access (allow 0.0.0.0/0)'
     });
   }
-  next();
 });
 
 // Health check endpoint

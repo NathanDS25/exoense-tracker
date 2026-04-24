@@ -53,7 +53,14 @@ export default function TransactionForm({ onAdd, onUpdate, editingTransaction, o
             setFormData(defaultForm)
             setError('')
         } catch (err) {
-            setError(err.message || "Something went wrong")
+            let errorMessage = "Something went wrong";
+            if (err?.message) {
+                errorMessage = err.message;
+            } else if (typeof err === 'string') {
+                errorMessage = err;
+            }
+            // Ensure error is a string so React doesn't crash or show [object Object]
+            setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
         }
     }
 
@@ -136,7 +143,7 @@ export default function TransactionForm({ onAdd, onUpdate, editingTransaction, o
                     </label>
                 </div>
 
-                {error && <p className="text-rose-500 text-sm font-medium">{error}</p>}
+                {error && <p className="text-rose-500 text-sm font-medium">{typeof error === 'object' ? (error.message || JSON.stringify(error)) : String(error)}</p>}
 
                 <div className="flex gap-3">
                     {editingTransaction && (

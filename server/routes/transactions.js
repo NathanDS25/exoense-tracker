@@ -13,7 +13,8 @@ router.get('/', async (req, res) => {
       amount: t.amount,
       type: t.type,
       category: t.category,
-      date: t.date
+      date: t.date,
+      recurring: t.recurring
     }));
     res.json(formatted);
   } catch (err) {
@@ -28,7 +29,8 @@ router.post('/', async (req, res) => {
     amount: req.body.amount,
     type: req.body.type,
     category: req.body.category,
-    date: req.body.date
+    date: req.body.date,
+    recurring: req.body.recurring || false
   });
 
   try {
@@ -39,7 +41,8 @@ router.post('/', async (req, res) => {
       amount: newTransaction.amount,
       type: newTransaction.type,
       category: newTransaction.category,
-      date: newTransaction.date
+      date: newTransaction.date,
+      recurring: newTransaction.recurring
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -56,7 +59,8 @@ router.put('/:id', async (req, res) => {
       amount: updated.amount,
       type: updated.type,
       category: updated.category,
-      date: updated.date
+      date: updated.date,
+      recurring: updated.recurring
     });
   } catch (err) {
     res.status(400).json({ message: err.message });

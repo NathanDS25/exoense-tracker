@@ -41,8 +41,10 @@ function App() {
       setTransactions(prev => [res.data, ...prev]);
       return res.data;
     } catch (error) {
-      console.error("Error adding transaction:", error.response?.data || error);
-      throw new Error(error.response?.data?.details || error.response?.data?.error || "Failed to add transaction");
+      const data = error.response?.data;
+      const msg = data?.message || data?.details || data?.error || (typeof data === 'string' ? data : error.message) || "Failed to add transaction";
+      console.error("Error adding transaction:", data || error);
+      throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
     }
   }
 
